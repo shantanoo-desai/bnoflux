@@ -47,8 +47,12 @@ def main():
 
     try:
         calibrate(i2c_port=args.i2c_bus)
+    except KeyboardInterrupt:
+        print('Exiting Script')
+        sys.exit(0)
     except Exception as e:
         raise(e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
