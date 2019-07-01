@@ -17,6 +17,7 @@ formatter = logging.Formatter('%(asctime)s-%(name)s-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+CONF_PATH = '/etc/umg/conf.json'
 sensor_bno = None
 client = None
 
@@ -116,6 +117,26 @@ def parse_args():
 
 def main():
     args = parse_args()
+    CONF = dict()
+
+    if len(sys.argv) == 1:
+        logger.info('Starting Script in Default Mode')
+        # minimum configuration file
+        logger.debug('CONF FILE: %s' % CONF_PATH)
+        with open(CONF_PATH) as cFile:
+            _conf = json.load(cFile)
+            CONF = _conf['BNO055'] #store conf for BNO
+            logger.debug('CONF: ' + json.dumps(CONF))
+        try:
+            send_data(i2c_port=CONF['i2cPort'],
+                    updaterate=CONF['updaterate'],
+                    db_host=args.db_host,
+                    db_port=args.db_port,
+                    udp_port=CONF['dbConf']['udp_port'])
+        except KeyboardInterrupt:
+            logger.exception('CTRL+C Hit')
+            client.close()
+            sys.exit(0)
 
     if len(sys.argv) > 1:
         if args.i2c_bus is None:
