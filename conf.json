@@ -1,0 +1,9 @@
+{
+    "BNO055": {
+        "i2cPort": 0,
+        "updaterate": 0.01,
+        "dbConf": {
+            "udp_port": 8095
+        }
+    }
+}
