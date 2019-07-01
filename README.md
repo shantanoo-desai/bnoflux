@@ -56,3 +56,5 @@ activate the virtual environment, install using:
         --db-host DB_HOST     hostname for InfluxDB HTTP Instance. Default:
                                 localhost
         --db-port DB_PORT     port number for InfluxDB HTTP Instance. Default: 8086
+
+3. If used without Arguments it will look for a configuration JSON file in `CONF_PATH` in `bnoflux\bnoflux.py`
