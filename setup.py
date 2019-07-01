@@ -6,7 +6,7 @@ def readme():
 
 
 setup(name='bnoflux',
-    version=1.1,
+    version=1.2,
     description='Extract IMU Values from BNO055 and store them in InfluxDB via UDP',
     long_description=readme(),
     url='https://github.com/shantanoo-desai/bnoflux',
