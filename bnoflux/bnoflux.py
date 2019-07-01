@@ -2,6 +2,7 @@ import sys
 import argparse
 import logging
 import time
+import json
 
 from .BNO055 import BNO055
 from influxdb import InfluxDBClient
