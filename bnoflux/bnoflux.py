@@ -7,9 +7,10 @@ import json
 from .BNO055 import BNO055
 from influxdb import InfluxDBClient
 from influxdb.client import InfluxDBClientError
+from influxdb.client import InfluxDBServerError
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 
 handler = logging.FileHandler("/var/log/bnoflux.log")
 handler.setLevel(logging.ERROR)
@@ -28,9 +29,9 @@ def write_to_influx(db_client, data_points):
     try:
         db_client.send_packet(_packet)
         logger.info('UDP Packet Sent')
-    except InfluxDBClientError as e:
-        db_client.close()
-        raise(e)
+    except (InfluxDBClientError, InfluxDBServerError) as e:
+        logger.exception(e)
+        pass
 
 def send_data(i2c_port, updaterate, db_host, db_port, udp_port):
     logger.info('Starting to Read BNO values on {} every {}s'.format(i2c_port, updaterate))
@@ -49,7 +50,7 @@ def send_data(i2c_port, updaterate, db_host, db_port, udp_port):
         logger.info('Creating InfluxDB Connection')
         try:
             client = InfluxDBClient(host=db_host, port=db_port, use_udp=True, udp_port=udp_port)
-        except InfluxDBClientError as e:
+        except (InfluxDBClientError, InfluxDBServerError) as e:
             logger.exception('Exception during InfluxDB Client Creation')
             client.close()
             raise(e)            
@@ -87,10 +88,11 @@ def send_data(i2c_port, updaterate, db_host, db_port, udp_port):
 
             logger.debug('Data Point: {}'.format(data_set))
             write_to_influx(client, [data_set])
+            time.sleep(updaterate)
     except Exception as e:
         logger.exception('Exception within `send_data` function')
-        client.close()
-        raise(e)
+        logger.exception(e)
+        pass
 
 
 
@@ -102,7 +104,7 @@ def parse_args():
     parser.add_argument('--i2c-bus', type=int, required=False, default=0,
                         help='Provide the Number of the I2C port. E.g. for i2c0 -> 0, i2c -> 1')
 
-    parser.add_argument('--updaterate', type=int, required=False, default=0.01, help='Update Rate for BNo Module in s. Default: 0.01s')    
+    parser.add_argument('--updaterate', type=int, required=False, default=0.01, help='Update Rate for BNO Module in s. Default: 0.01s')    
 
     parser.add_argument('--udp-port', type=int, required=False, default=8095,
                         help='UDP Port for sending information via UDP.\n Should also be configured in InfluxDB')
