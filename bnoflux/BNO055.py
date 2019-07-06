@@ -1,6 +1,11 @@
-import smbus
+import sys
 import time
 import struct
+import logging
+import smbus
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 class BNO055:
     BNO055_ADDRESS_A 				= 0x28
@@ -191,6 +196,7 @@ class BNO055:
     def begin(self, mode=None):
         if mode is None : mode = BNO055.OPERATION_MODE_NDOF
         self._bus = smbus.SMBus(self._i2c_bus_port)
+        logger.info('Setting I2C bus and BNO in NDOF Mode')
 
         # Make sure we have the right device
         if self.readBytes(BNO055.BNO055_CHIP_ID_ADDR)[0] != BNO055.BNO055_ID:
@@ -227,6 +233,7 @@ class BNO055:
         time.sleep(0.03)
 
     def setExternalCrystalUse(self, useExternalCrystal = True):
+        logger.info('Setting External Crystal Use for BNO')
         prevMode = self._mode
         self.setMode(BNO055.OPERATION_MODE_CONFIG)
         time.sleep(0.025)
@@ -237,12 +244,14 @@ class BNO055:
         time.sleep(0.02)
 
     def getSystemStatus(self):
+        logger.info('Get System Status')
         self.writeBytes(BNO055.BNO055_PAGE_ID_ADDR, [0])
         (sys_stat, sys_err) = self.readBytes(BNO055.BNO055_SYS_STAT_ADDR, 2)
         self_test = self.readBytes(BNO055.BNO055_SELFTEST_RESULT_ADDR)[0]
         return (sys_stat, self_test, sys_err)
 
     def getRevInfo(self):
+        logger.info('Get Revision Info')
         (accel_rev, mag_rev, gyro_rev) = self.readBytes(BNO055.BNO055_ACCEL_REV_ID_ADDR, 3)
         sw_rev = self.readBytes(BNO055.BNO055_SW_REV_ID_LSB_ADDR, 2)
         sw_rev = sw_rev[0] | sw_rev[1] << 8
@@ -250,17 +259,21 @@ class BNO055:
         return (accel_rev, mag_rev, gyro_rev, sw_rev, bl_rev)
 
     def getCalibrationStatus(self):
+        logger.info('Get Calibration Status')
         calData = self.readBytes(BNO055.BNO055_CALIB_STAT_ADDR)[0]
         return (calData >> 6 & 0x03, calData >> 4 & 0x03, calData >> 2 & 0x03, calData & 0x03)
         
     def getCalibration(self):
+        logger.info('Getting Calibration values')
         self.setMode(BNO055.OPERATION_MODE_CONFIG)
         time.sleep(0.025)
         cal_data = list(self.readBytes(BNO055.ACCEL_OFFSET_X_LSB_ADDR, 22))
+        logger.debug(cal_data)
         self.setMode(BNO055.OPERATION_MODE_NDOF)
         return cal_data
     
     def setCalibration(self, data):
+        logger.info('Setting Calibration')
         if data is None or len(data) != 22:
                 raise ValueError('Expected a list of 22 Bytes for Calibration')
         self.setMode(BNO055.OPERATION_MODE_CONFIG)
@@ -270,9 +283,11 @@ class BNO055:
         self.setMode(BNO055.OPERATION_MODE_NDOF)
 
     def getTemp(self):
+        logger.info('Get Temperature')
         return self.readBytes(BNO055.BNO055_TEMP_ADDR)[0]
 
     def getVector(self, vectorType):
+        logger.info('Get Vector Type for: {}'.format(vectorType))
         buf = self.readBytes(vectorType, 6)
         xyz = struct.unpack('hhh', struct.pack('BBBBBB', buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]))
         if vectorType == BNO055.VECTOR_MAGNETOMETER:
@@ -290,6 +305,7 @@ class BNO055:
         return tuple([i/scalingFactor for i in xyz])
 
     def getQuat(self):
+        logger.info('Get Quaternions')
         buf = self.readBytes(BNO055.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8)
         wxyz = struct.unpack('hhhh', struct.pack('BBBBBBBB', buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]))
         return tuple([i * (1.0 / (1 << 14)) for i in wxyz])
