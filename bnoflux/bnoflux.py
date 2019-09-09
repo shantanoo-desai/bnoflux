@@ -104,7 +104,7 @@ def parse_args():
     parser.add_argument('--i2c-bus', type=int, required=False, default=0,
                         help='Provide the Number of the I2C port. E.g. for i2c0 -> 0, i2c -> 1')
 
-    parser.add_argument('--updaterate', type=int, required=False, default=0.01, help='Update Rate for BNO Module in s. Default: 0.01s')    
+    parser.add_argument('--updaterate', type=float, required=False, default=0.01, help='Update Rate for BNO Module in s. Default: 0.01s')    
 
     parser.add_argument('--udp-port', type=int, required=False, default=8095,
                         help='UDP Port for sending information via UDP.\n Should also be configured in InfluxDB')
