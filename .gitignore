@@ -126,4 +126,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# VS-Code Files
+.vscode/
+
 # End of https://www.gitignore.io/api/python
