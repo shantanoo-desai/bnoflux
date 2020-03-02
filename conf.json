@@ -1,9 +1,23 @@
 {
-    "BNO055": {
+    "deviceID": "UMG/0001",
+    "influx": {
+        "host": "localhost",
+        "port": 8086
+    },
+    "mqtt": {
+        "broker": "localhost",
+        "port": 1883
+    },
+    "imu": {
         "i2cPort": 0,
         "updaterate": 0.01,
-        "dbConf": {
-            "udp_port": 8095
-        }
+        "udp_port": 8095,
+        "topics": [
+            "acceleration/imu/linear",
+            "acceleration/imu/gravity",
+            "orientation/imu/yaw",
+            "orientation/imu/pitch",
+            "orientation/imu/roll"
+        ]
     }
 }

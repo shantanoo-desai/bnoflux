@@ -1,6 +1,6 @@
 # bnoflux
 
-Python 3.x Command Line Utility for saving IMU information from [Bosch BNO055]() into InfluxDB via UDP
+Python 3.x Command Line Utility for saving IMU information from [Bosch BNO055]() into InfluxDB via UDP and publishing data points to an MQTT broker
 
 ## Installation and Development
 
@@ -40,21 +40,30 @@ activate the virtual environment, install using:
 
 2. Storage. (default I2C Port if not provides is 0)
 
-        usage: bnoflux [-h] [--i2c-bus I2C_BUS] [--updaterate UPDATERATE] --udp-port
-               UDP_PORT [--db-host DB_HOST] [--db-port DB_PORT]
-
-        CLI for acquiring BNO055 values and storing it in InfluxDB
+        usage: bnoflux [-h] --config CONFIG
+        CLI for acquiring BNO055 values and toring it in InfluxDB and publishing via
+        MQTT
 
         optional arguments:
-        -h, --help            show this help message and exit
-        --i2c-bus I2C_BUS     Provide the Number of the I2C port. E.g. for i2c0 ->
-                                0, i2c -> 1
-        --updaterate UPDATERATE
-                                Update Rate for BNo Module in s. Default: 0.01s
-        --udp-port UDP_PORT   UDP Port for sending information via UDP. Should also
-                                be configured in InfluxDB
-        --db-host DB_HOST     hostname for InfluxDB HTTP Instance. Default:
-                                localhost
-        --db-port DB_PORT     port number for InfluxDB HTTP Instance. Default: 8086
+        -h, --help       show this help message and exit
+        --config CONFIG  Configuration conf.json file with path.
 
-3. If used without Arguments it will look for a configuration JSON file in `CONF_PATH` in `bnoflux\bnoflux.py`
+e.g.
+
+    bnoflux --config /path/to/conf.json
+
+
+## InfluxDB Settings
+
+In the `influxdb.conf` add the `[[udp]]` table as follows:
+
+```toml
+
+[[udp]]
+  enabled = true
+  bind-address = ":8095"
+  database = "BNO"
+  precision = "n"
+```
+
+Make sure to match the udp port in `conf.json`.

@@ -2,5 +2,5 @@
 
 from bnoflux import bnoflux
 
-if __name__=='__main__':
+if __name__ == '__main__':
     bnoflux.main()

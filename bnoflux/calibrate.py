@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import time
 import argparse
@@ -16,11 +17,11 @@ def calibrate(i2c_port):
         sys.exit(1)
     time.sleep(1)
     sensor_bno.setExternalCrystalUse(True)
-    
+
     while not sensor_bno.isFullyCalibrated():
         print('Begin Calibration')
         time.sleep(0.1)
-    
+
     print('Sensor Calibrated')
     new_calibration = sensor_bno.getCalibration()
     print('New Calibration Values: {}'.format(new_calibration))
@@ -39,8 +40,9 @@ def parse_args():
 
     parser.add_argument('--i2c-bus', type=int, required=False, default=0,
                         help='Provide the Number of the I2C port. E.g. for i2c0 -> 0, i2c -> 1')
-    
+
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
@@ -57,5 +59,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
